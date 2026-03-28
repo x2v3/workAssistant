@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📁 File Assistant</h1>
+      <span class="status-badge" id="serverStatus">Connecting...</span>
+    </header>
+
+    <section class="quick-actions">
+      <button class="btn btn-primary btn-lg" id="scanUnreadBtn">
+        📬 Scan All Unread
+      </button>
+      <p class="help-text">Clicks through all unread chats/channels to collect messages</p>
+      <div class="btn-row" style="margin-top: 10px;">
+        <button class="btn btn-secondary" id="autoScanBtn" style="flex: 1;">
+          🔄 Quick Scan
+        </button>
+        <button class="btn btn-secondary" id="fullScanBtn" style="flex: 1;">
+          📋 Full Scan
+        </button>
+      </div>
+    </section>
+
+    <section class="stats-bar">
+      <div class="stat">
+        <span class="stat-value" id="messagesCount">0</span>
+        <span class="stat-label">Messages</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="filesCount">0</span>
+        <span class="stat-label">Files Pending</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="sourcesCount">0</span>
+        <span class="stat-label">Active Tabs</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>📬 Catch Me Up</h2>
+      <p>Get an AI summary of messages from the last 24 hours</p>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="catchupBtn">Generate Summary</button>
+        <label class="checkbox-inline">
+          <input type="checkbox" id="sendToDiscord" checked>
+          Send to Discord
+        </label>
+      </div>
+      <div class="result-box" id="summaryResult" style="display: none;"></div>
+    </section>
+
+    <section class="card">
+      <h2>🗂️ File Sync</h2>
+      <div class="sync-info">
+        <div class="info-row">
+          <span>Pending Files:</span>
+          <strong id="pendingFilesCount">0</strong>
+        </div>
+        <div class="info-row">
+          <span>Last Sync:</span>
+          <strong id="lastSyncTime">Never</strong>
+        </div>
+      </div>
+      <button class="btn btn-secondary" id="processFilesBtn">
+        📥 Process Files Now
+      </button>
+    </section>
+
+    <section class="card">
+      <h2>📍 Active Sources</h2>
+      <div id="activeSourcesList" class="sources-list">
+        <div class="loading">Scanning for open tabs...</div>
+      </div>
+      <button class="btn btn-secondary" id="openTabsBtn" style="margin-top: 12px; width: 100%;">
+        🌐 Open Teams & Slack Tabs
+      </button>
+    </section>
+
+    <footer>
+      <a href="#" id="openDashboard">Open Dashboard</a>
+      <span class="separator">•</span>
+      <a href="#" id="openSettings">Settings</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

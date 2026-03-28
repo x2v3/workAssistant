@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Assistant - Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --purple: #8b5cf6;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      line-height: 1.5;
+    }
+
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px 32px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+    header p { opacity: 0.9; font-size: 14px; }
+
+    .status-bar { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+    .status-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gray-400); }
+    .status-dot.success { background: var(--success); }
+    .status-dot.error { background: var(--error); }
+    .status-dot.warning { background: var(--warning); }
+
+    main { flex: 1; padding: 32px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+    .tab {
+      padding: 10px 20px; background: white; border: 1px solid var(--gray-200);
+      border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab:hover { background: var(--gray-50); }
+    .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; }
+
+    .card {
+      background: white; border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .card-header .icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+
+    .card-header .icon.blue { background: #dbeafe; }
+    .card-header .icon.purple { background: #ede9fe; }
+    .card-header .icon.green { background: #dcfce7; }
+    .card-header .icon.orange { background: #ffedd5; }
+    .card-header .icon.pink { background: #fce7f3; }
+
+    .card-header h2 { font-size: 16px; font-weight: 600; }
+    .card-header p { font-size: 13px; color: var(--gray-500); }
+    .card-body { padding: 24px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--gray-700); }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--gray-300);
+      border-radius: 8px; font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .form-group small { display: block; margin-top: 4px; font-size: 12px; color: var(--gray-500); }
+    .form-group small a { color: var(--primary); }
+
+    .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+    .checkbox-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+    .checkbox-label input { width: 18px; height: 18px; cursor: pointer; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; border: none;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: white; color: var(--gray-700); border: 1px solid var(--gray-300); }
+    .btn-secondary:hover { background: var(--gray-50); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-purple { background: var(--purple); color: white; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-top: 12px; display: none; }
+    .alert.success { display: block; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .alert.error { display: block; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stat-card { background: var(--gray-50); padding: 16px; border-radius: 8px; text-align: center; }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: var(--gray-800); }
+    .stat-card .label { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+
+    .search-box { position: relative; margin-bottom: 20px; }
+    .search-box input {
+      width: 100%; padding: 14px 16px; padding-left: 44px; border: 2px solid var(--gray-200);
+      border-radius: 12px; font-size: 15px;
+    }
+    .search-box input:focus { border-color: var(--purple); }
+    .search-box::before {
+      content: '🔍'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 18px;
+    }
+
+    .qa-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white; margin-bottom: 20px; }
+    .qa-box h3 { font-size: 18px; margin-bottom: 12px; }
+    .qa-box input { background: rgba(255,255,255,0.9); border: none; }
+    .qa-box .btn { margin-top: 12px; }
+
+    .answer-box { background: var(--gray-50); border-radius: 12px; padding: 20px; margin-top: 16px; }
+    .answer-box h4 { font-size: 14px; color: var(--gray-600); margin-bottom: 12px; }
+    .answer-box .answer-text { font-size: 15px; line-height: 1.7; }
+    .answer-box .sources { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-200); }
+    .answer-box .sources h5 { font-size: 12px; color: var(--gray-500); margin-bottom: 8px; }
+    .answer-box .source-item { font-size: 12px; color: var(--gray-600); margin-bottom: 4px; }
+
+    .message-list { max-height: 400px; overflow-y: auto; }
+    .message-item { padding: 12px; border-bottom: 1px solid var(--gray-100); }
+    .message-item:last-child { border-bottom: none; }
+    .message-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .message-sender { font-weight: 500; font-size: 13px; }
+    .message-meta { font-size: 11px; color: var(--gray-400); }
+    .message-text { font-size: 13px; color: var(--gray-700); }
+    .message-channel { font-size: 11px; color: var(--purple); margin-top: 4px; }
+
+    .history-list { max-height: 300px; overflow-y: auto; }
+    .history-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--gray-100); }
+    .history-item:last-child { border-bottom: none; }
+    .history-icon { width: 36px; height: 36px; background: var(--gray-100); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .history-info { flex: 1; min-width: 0; }
+    .history-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-meta { font-size: 11px; color: var(--gray-500); }
+    .history-badge { font-size: 10px; padding: 2px 8px; border-radius: 12px; background: var(--gray-100); color: var(--gray-600); }
+    .history-badge.teams { background: #dbeafe; color: #1d4ed8; }
+    .history-badge.slack { background: #fef3c7; color: #92400e; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-400); }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; padding: 16px 24px;
+      background: var(--gray-800); color: white; border-radius: 8px; font-size: 14px;
+      transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 1000;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
+
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>📁 Teams & Slack File Assistant</h1>
+      <p>AI-powered message catch-up, Q&A, and file organization</p>
+      <div class="status-bar">
+        <div class="status-item">
+          <span class="status-dot success" id="serverDot"></span>
+          <span>Server Running</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot" id="llmDot"></span>
+          <span id="llmStatus">AI: Not configured</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot" id="discordDot"></span>
+          <span id="discordStatusText">Discord: Not configured</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot" id="kbDot"></span>
+          <span id="kbStatus">Knowledge Base: 0 messages</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="tabs">
+        <div class="tab active" data-tab="knowledge">🧠 Knowledge Base</div>
+        <div class="tab" data-tab="settings">⚙️ Settings</div>
+        <div class="tab" data-tab="files">📁 Files</div>
+      </div>
+
+      <!-- Knowledge Base Tab -->
+      <div class="tab-content active" id="tab-knowledge">
+        <div class="qa-box">
+          <h3>💬 Ask a Question</h3>
+          <p style="opacity: 0.9; font-size: 13px; margin-bottom: 12px;">Ask anything about your Teams and Slack messages</p>
+          <input type="text" id="questionInput" placeholder="e.g., What did Sarah say about the Q4 deadline?">
+          <button class="btn btn-secondary" id="askBtn" style="background: white; color: #764ba2;">Ask AI</button>
+        </div>
+
+        <div class="answer-box" id="answerBox" style="display: none;">
+          <h4>🤖 AI Answer</h4>
+          <div class="answer-text" id="answerText"></div>
+          <div class="sources" id="answerSources"></div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="icon purple">📊</div>
+              <div>
+                <h2>Knowledge Base Stats</h2>
+                <p>Messages stored from Teams & Slack</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="value" id="kbTotal">0</div>
+                  <div class="label">Total Messages</div>
+                </div>
+                <div class="stat-card">
+                  <div class="value" id="kb24h">0</div>
+                  <div class="label">Last 24h</div>
+                </div>
+                <div class="stat-card">
+                  <div class="value" id="kbTeams">0</div>
+                  <div class="label">Teams</div>
+                </div>
+                <div class="stat-card">
+                  <div class="value" id="kbSlack">0</div>
+                  <div class="label">Slack</div>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-purple" id="catchupBtn">📬 Generate Catch-Up</button>
+                <button class="btn btn-secondary" id="refreshKbBtn">🔄 Refresh</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="icon blue">🔍</div>
+              <div>
+                <h2>Search Messages</h2>
+                <p>Find specific messages in your knowledge base</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search messages...">
+              </div>
+              <div class="message-list" id="searchResults">
+                <div class="empty-state">Enter a search term above</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="grid-column: span 2;">
+            <div class="card-header">
+              <div class="icon green">💬</div>
+              <div>
+                <h2>Recent Messages</h2>
+                <p>Latest messages collected from Teams & Slack</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="message-list" id="recentMessages">
+                <div class="empty-state">No messages yet. Make sure the Chrome extension is running.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="tab-settings">
+        <div class="grid">
+          <!-- AI Configuration -->
+          <div class="card">
+            <div class="card-header">
+              <div class="icon blue">🤖</div>
+              <div>
+                <h2>AI Configuration</h2>
+                <p>OpenRouter API for summaries and Q&A</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="apiKey">OpenRouter API Key</label>
+                <input type="password" id="apiKey" placeholder="sk-or-...">
+                <small>Get your key at <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></small>
+              </div>
+              <div class="form-group">
+                <label for="model">AI Model</label>
+                <div style="display: flex; gap: 8px;">
+                  <select id="model" style="flex: 1;">
+                    <option value="">Loading models...</option>
+                  </select>
+                  <button class="btn btn-secondary" id="refreshModelsBtn" title="Refresh model list">🔄</button>
+                </div>
+                <small>Models fetched from OpenRouter. <a href="#" id="showAllModelsLink">Show all models</a></small>
+              </div>
+              <button class="btn btn-secondary" id="testLlmBtn">Test Connection</button>
+              <div class="alert" id="llmAlert"></div>
+            </div>
+          </div>
+
+          <!-- Discord Configuration -->
+          <div class="card">
+            <div class="card-header">
+              <div class="icon purple">💬</div>
+              <div>
+                <h2>Discord Integration</h2>
+                <p>Bot for Q&A and notifications</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="discordWebhook">Webhook URL (for notifications)</label>
+                <input type="text" id="discordWebhook" placeholder="https://discord.com/api/webhooks/...">
+              </div>
+              <div class="form-group">
+                <label for="discordBotToken">Bot Token (for Q&A)</label>
+                <input type="password" id="discordBotToken" placeholder="Your bot token...">
+                <small>Create a bot at <a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a></small>
+              </div>
+              <div class="form-group">
+                <label for="botPrefix">Bot Command Prefix</label>
+                <input type="text" id="botPrefix" placeholder="!ask" value="!ask">
+                <small>Users type this followed by their question</small>
+              </div>
+              <div class="form-group">
+                <label>Options</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="notifyFiles" checked>
+                    <span>Notify on file downloads</span>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="notifyCatchUp" checked>
+                    <span>Send catch-up summaries</span>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="autoSummary">
+                    <span>Auto daily summary</span>
+                  </label>
+                </div>
+              </div>
+              <button class="btn btn-secondary" id="testDiscordBtn">Test Webhook</button>
+              <div class="alert" id="discordAlert"></div>
+            </div>
+          </div>
+
+          <!-- Storage & Sync -->
+          <div class="card">
+            <div class="card-header">
+              <div class="icon green">📂</div>
+              <div>
+                <h2>Storage & Sync</h2>
+                <p>File storage and sync settings</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="baseDir">Base Directory</label>
+                <input type="text" id="baseDir" placeholder="D:/Downloads/WorkFiles">
+              </div>
+              <div class="form-group">
+                <label for="syncInterval">Sync Interval</label>
+                <select id="syncInterval">
+                  <option value="5">Every 5 minutes</option>
+                  <option value="15" selected>Every 15 minutes</option>
+                  <option value="30">Every 30 minutes</option>
+                  <option value="60">Every hour</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Sources</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label"><input type="checkbox" id="teamsEnabled" checked><span>Teams</span></label>
+                  <label class="checkbox-label"><input type="checkbox" id="slackEnabled" checked><span>Slack</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Filters -->
+          <div class="card">
+            <div class="card-header">
+              <div class="icon pink">🔍</div>
+              <div>
+                <h2>File Filters</h2>
+                <p>Control which files are downloaded</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="fileTypes">Allowed Types</label>
+                <input type="text" id="fileTypes" placeholder=".pdf, .docx, .xlsx">
+              </div>
+              <div class="form-group">
+                <label for="maxSize">Max Size (MB)</label>
+                <input type="number" id="maxSize" value="100" min="1" max="1000">
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Configuration -->
+          <div class="card">
+            <div class="card-header">
+              <div class="icon orange">🌐</div>
+              <div>
+                <h2>Auto Tab Opening</h2>
+                <p>Automatically open Teams/Slack on startup</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="autoOpenTabs" checked>
+                  <span>Auto-open tabs when extension starts</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="teamsUrl">Teams URL</label>
+                <input type="text" id="teamsUrl" placeholder="https://teams.microsoft.com">
+                <small>Main Teams page or specific chat/channel</small>
+              </div>
+              <div class="form-group">
+                <label for="slackUrl">Slack URL</label>
+                <input type="text" id="slackUrl" placeholder="https://app.slack.com">
+                <small>Main Slack page or specific workspace</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 32px; text-align: center;">
+          <button class="btn btn-success" id="saveBtn" style="padding: 14px 48px; font-size: 16px;">💾 Save All Settings</button>
+        </div>
+      </div>
+
+      <!-- Files Tab -->
+      <div class="tab-content" id="tab-files">
+        <div class="grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="icon blue">📊</div>
+              <div>
+                <h2>File Statistics</h2>
+                <p>Downloaded files overview</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="value" id="statTotal">0</div>
+                  <div class="label">Total Files</div>
+                </div>
+                <div class="stat-card">
+                  <div class="value" id="statSize">0 MB</div>
+                  <div class="label">Total Size</div>
+                </div>
+                <div class="stat-card">
+                  <div class="value" id="statTeamsFiles">0</div>
+                  <div class="label">From Teams</div>
+                </div>
+                <div class="stat-card">
+                  <div class="value" id="statSlackFiles">0</div>
+                  <div class="label">From Slack</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="icon green">📁</div>
+              <div>
+                <h2>Recent Downloads</h2>
+                <p>Files downloaded by the extension</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="history-list" id="historyList">
+                <div class="empty-state">No files downloaded yet</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_URL = '';
+
+    class Dashboard {
+      constructor() {
+        this.config = null;
+        this.showAllModels = false;
+        this.models = [];
+        this.init();
+      }
+
+      async init() {
+        await this.loadConfig();
+        await this.loadModels();
+        await this.loadKnowledgeStats();
+        await this.loadFileStats();
+        await this.loadRecentMessages();
+        await this.checkServices();
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        // Tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+          });
+        });
+
+        // Buttons
+        document.getElementById('saveBtn').addEventListener('click', () => this.saveConfig());
+        document.getElementById('testLlmBtn').addEventListener('click', () => this.testLlm());
+        document.getElementById('testDiscordBtn').addEventListener('click', () => this.testDiscord());
+        document.getElementById('askBtn').addEventListener('click', () => this.askQuestion());
+        document.getElementById('catchupBtn').addEventListener('click', () => this.generateCatchup());
+        document.getElementById('refreshKbBtn').addEventListener('click', () => this.loadKnowledgeStats());
+        document.getElementById('refreshModelsBtn').addEventListener('click', () => this.loadModels(true));
+        document.getElementById('showAllModelsLink').addEventListener('click', (e) => {
+          e.preventDefault();
+          this.showAllModels = !this.showAllModels;
+          e.target.textContent = this.showAllModels ? 'Show popular models' : 'Show all models';
+          this.loadModels(this.showAllModels);
+        });
+
+        // Search
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => this.searchMessages(e.target.value), 300);
+        });
+
+        // Enter key for question
+        document.getElementById('questionInput').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.askQuestion();
+        });
+      }
+
+      async loadModels(fetchAll = false) {
+        const select = document.getElementById('model');
+        const currentValue = select.value || this.config?.llm?.model || 'openai/gpt-4o-mini';
+        select.innerHTML = '<option value="">Loading...</option>';
+
+        try {
+          const endpoint = fetchAll ? '/api/llm/models' : '/api/llm/models/popular';
+          const res = await fetch(`${API_URL}${endpoint}`);
+          const models = await res.json();
+          this.models = models;
+
+          // Group by provider
+          const grouped = {};
+          for (const model of models) {
+            const provider = model.provider || model.id.split('/')[0] || 'Other';
+            if (!grouped[provider]) grouped[provider] = [];
+            grouped[provider].push(model);
+          }
+
+          // Build select options
+          let html = '';
+          for (const [provider, providerModels] of Object.entries(grouped)) {
+            html += `<optgroup label="${provider}">`;
+            for (const model of providerModels) {
+              const name = model.name || model.id;
+              const selected = model.id === currentValue ? 'selected' : '';
+              html += `<option value="${model.id}" ${selected}>${name}</option>`;
+            }
+            html += '</optgroup>';
+          }
+          select.innerHTML = html;
+          
+          // Restore selection
+          if (currentValue) select.value = currentValue;
+          
+        } catch (e) {
+          console.error('Failed to load models:', e);
+          // Fallback to basic options
+          select.innerHTML = `
+            <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+            <option value="openai/gpt-4o">GPT-4o</option>
+            <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+          `;
+          if (currentValue) select.value = currentValue;
+        }
+      }
+
+      async loadConfig() {
+        try {
+          const res = await fetch(`${API_URL}/api/config`);
+          this.config = await res.json();
+          this.populateForm();
+        } catch (e) {
+          this.showToast('Failed to load config', 'error');
+        }
+      }
+
+      populateForm() {
+        if (!this.config) return;
+        // Model is set by loadModels()
+        document.getElementById('discordWebhook').value = this.config.discord?.webhookUrl || '';
+        document.getElementById('discordBotToken').value = this.config.discord?.botToken || '';
+        document.getElementById('botPrefix').value = this.config.discord?.botPrefix || '!ask';
+        document.getElementById('notifyFiles').checked = this.config.discord?.notifyOnFiles !== false;
+        document.getElementById('notifyCatchUp').checked = this.config.discord?.notifyOnCatchUp !== false;
+        document.getElementById('autoSummary').checked = this.config.discord?.autoSummary === true;
+        document.getElementById('baseDir').value = this.config.storage?.baseDirectory || '';
+        document.getElementById('syncInterval').value = this.config.sync?.intervalMinutes?.toString() || '15';
+        document.getElementById('teamsEnabled').checked = this.config.sync?.teamsEnabled !== false;
+        document.getElementById('slackEnabled').checked = this.config.sync?.slackEnabled !== false;
+        document.getElementById('fileTypes').value = (this.config.filters?.fileTypes || []).join(', ');
+        document.getElementById('maxSize').value = this.config.filters?.maxFileSizeMB || 100;
+        // Tab settings
+        document.getElementById('autoOpenTabs').checked = this.config.tabs?.autoOpen !== false;
+        document.getElementById('teamsUrl').value = this.config.tabs?.teamsUrl || 'https://teams.microsoft.com';
+        document.getElementById('slackUrl').value = this.config.tabs?.slackUrl || 'https://app.slack.com';
+      }
+
+      async saveConfig() {
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+        const config = {
+          llm: { provider: 'openrouter', model: document.getElementById('model').value },
+          discord: {
+            webhookUrl: document.getElementById('discordWebhook').value,
+            botToken: document.getElementById('discordBotToken').value,
+            botPrefix: document.getElementById('botPrefix').value,
+            notifyOnFiles: document.getElementById('notifyFiles').checked,
+            notifyOnCatchUp: document.getElementById('notifyCatchUp').checked,
+            autoSummary: document.getElementById('autoSummary').checked
+          },
+          storage: { baseDirectory: document.getElementById('baseDir').value },
+          sync: {
+            intervalMinutes: parseInt(document.getElementById('syncInterval').value) || 15,
+            teamsEnabled: document.getElementById('teamsEnabled').checked,
+            slackEnabled: document.getElementById('slackEnabled').checked
+          },
+          tabs: {
+            autoOpen: document.getElementById('autoOpenTabs').checked,
+            teamsUrl: document.getElementById('teamsUrl').value || 'https://teams.microsoft.com',
+            slackUrl: document.getElementById('slackUrl').value || 'https://app.slack.com'
+          },
+          filters: {
+            fileTypes: document.getElementById('fileTypes').value.split(',').map(t => t.trim()).filter(t => t),
+            maxFileSizeMB: parseInt(document.getElementById('maxSize').value) || 100
+          }
+        };
+
+        const apiKey = document.getElementById('apiKey').value;
+        if (apiKey && apiKey !== '***') config.llm.apiKey = apiKey;
+
+        try {
+          await fetch(`${API_URL}/api/config`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+          });
+          this.showToast('Settings saved! Restart server for bot changes.', 'success');
+          await this.checkServices();
+        } catch (e) {
+          this.showToast('Failed to save', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '💾 Save All Settings';
+        }
+      }
+
+      async testLlm() {
+        const btn = document.getElementById('testLlmBtn');
+        const alert = document.getElementById('llmAlert');
+        btn.disabled = true;
+        btn.textContent = 'Testing...';
+        await this.saveConfig();
+
+        try {
+          const res = await fetch(`${API_URL}/api/llm/test`, { method: 'POST' });
+          const data = await res.json();
+          alert.className = data.connected ? 'alert success' : 'alert error';
+          alert.textContent = data.connected ? `✓ Connected to ${data.model}` : `✗ ${data.error}`;
+        } catch (e) {
+          alert.className = 'alert error';
+          alert.textContent = `✗ ${e.message}`;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Test Connection';
+        }
+      }
+
+      async testDiscord() {
+        const btn = document.getElementById('testDiscordBtn');
+        const alert = document.getElementById('discordAlert');
+        btn.disabled = true;
+        btn.textContent = 'Testing...';
+        await this.saveConfig();
+
+        try {
+          const res = await fetch(`${API_URL}/api/discord/test`, { method: 'POST' });
+          const data = await res.json();
+          alert.className = data.success ? 'alert success' : 'alert error';
+          alert.textContent = data.success ? '✓ Test message sent!' : `✗ ${data.error}`;
+        } catch (e) {
+          alert.className = 'alert error';
+          alert.textContent = `✗ ${e.message}`;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Test Webhook';
+        }
+      }
+
+      async askQuestion() {
+        const input = document.getElementById('questionInput');
+        const btn = document.getElementById('askBtn');
+        const answerBox = document.getElementById('answerBox');
+        const question = input.value.trim();
+        if (!question) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Thinking...';
+        answerBox.style.display = 'none';
+
+        try {
+          const res = await fetch(`${API_URL}/api/knowledge/ask`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question })
+          });
+          const data = await res.json();
+
+          document.getElementById('answerText').textContent = data.answer;
+          
+          const sourcesHtml = data.sources?.map(s => 
+            `<div class="source-item">${s.source === 'teams' ? '💼' : '💬'} <strong>${s.sender}</strong> in ${s.channel} - ${new Date(s.timestamp).toLocaleString()}</div>`
+          ).join('') || '<div class="source-item">No specific sources</div>';
+          
+          document.getElementById('answerSources').innerHTML = `<h5>📖 Sources</h5>${sourcesHtml}`;
+          answerBox.style.display = 'block';
+        } catch (e) {
+          this.showToast('Failed to get answer: ' + e.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Ask AI';
+        }
+      }
+
+      async generateCatchup() {
+        const btn = document.getElementById('catchupBtn');
+        btn.disabled = true;
+        btn.textContent = 'Generating...';
+
+        try {
+          const res = await fetch(`${API_URL}/api/knowledge/catchup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sendToDiscord: true, hoursBack: 24 })
+          });
+          const data = await res.json();
+          
+          if (data.sentToDiscord) {
+            this.showToast('Catch-up summary sent to Discord!', 'success');
+          } else {
+            this.showToast(`Generated summary from ${data.messageCount} messages`, 'success');
+          }
+        } catch (e) {
+          this.showToast('Failed: ' + e.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '📬 Generate Catch-Up';
+        }
+      }
+
+      async searchMessages(query) {
+        const container = document.getElementById('searchResults');
+        if (!query || query.length < 2) {
+          container.innerHTML = '<div class="empty-state">Enter a search term</div>';
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/api/knowledge/search?q=${encodeURIComponent(query)}&limit=20`);
+          const data = await res.json();
+
+          if (!data.results?.length) {
+            container.innerHTML = '<div class="empty-state">No results found</div>';
+            return;
+          }
+
+          container.innerHTML = data.results.map(m => `
+            <div class="message-item">
+              <div class="message-header">
+                <span class="message-sender">${m.sender}</span>
+                <span class="message-meta">${new Date(m.timestamp).toLocaleString()}</span>
+              </div>
+              <div class="message-text">${this.highlightText(m.text?.substring(0, 200), query)}...</div>
+              <div class="message-channel">${m.source === 'teams' ? '💼' : '💬'} ${m.channelName}</div>
+            </div>
+          `).join('');
+        } catch (e) {
+          container.innerHTML = '<div class="empty-state">Search failed</div>';
+        }
+      }
+
+      highlightText(text, query) {
+        if (!text || !query) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+      }
+
+      async loadKnowledgeStats() {
+        try {
+          const res = await fetch(`${API_URL}/api/knowledge/stats`);
+          const stats = await res.json();
+          
+          document.getElementById('kbTotal').textContent = stats.totalMessages || 0;
+          document.getElementById('kb24h').textContent = stats.messagesLast24h || 0;
+          document.getElementById('kbTeams').textContent = stats.sourceCounts?.teams || 0;
+          document.getElementById('kbSlack').textContent = stats.sourceCounts?.slack || 0;
+          document.getElementById('kbStatus').textContent = `Knowledge Base: ${stats.totalMessages} messages`;
+          
+          const kbDot = document.getElementById('kbDot');
+          kbDot.className = stats.totalMessages > 0 ? 'status-dot success' : 'status-dot warning';
+        } catch (e) {
+          console.log('Could not load KB stats');
+        }
+      }
+
+      async loadRecentMessages() {
+        try {
+          const res = await fetch(`${API_URL}/api/knowledge/messages?limit=20`);
+          const data = await res.json();
+          const container = document.getElementById('recentMessages');
+
+          if (!data.messages?.length) {
+            container.innerHTML = '<div class="empty-state">No messages yet</div>';
+            return;
+          }
+
+          container.innerHTML = data.messages.map(m => `
+            <div class="message-item">
+              <div class="message-header">
+                <span class="message-sender">${m.sender}</span>
+                <span class="message-meta">${new Date(m.timestamp).toLocaleString()}</span>
+              </div>
+              <div class="message-text">${m.text?.substring(0, 150)}...</div>
+              <div class="message-channel">${m.source === 'teams' ? '💼' : '💬'} ${m.channelName}</div>
+            </div>
+          `).join('');
+        } catch (e) {
+          console.log('Could not load messages');
+        }
+      }
+
+      async loadFileStats() {
+        try {
+          const res = await fetch(`${API_URL}/api/files/stats`);
+          const stats = await res.json();
+          document.getElementById('statTotal').textContent = stats.totalDownloaded || 0;
+          document.getElementById('statSize').textContent = (stats.totalSizeMB || '0') + ' MB';
+          document.getElementById('statTeamsFiles').textContent = stats.bySource?.teams || 0;
+          document.getElementById('statSlackFiles').textContent = stats.bySource?.slack || 0;
+        } catch (e) {}
+
+        try {
+          const res = await fetch(`${API_URL}/api/files/history?limit=10`);
+          const history = await res.json();
+          const container = document.getElementById('historyList');
+
+          if (!history?.length) {
+            container.innerHTML = '<div class="empty-state">No files downloaded yet</div>';
+            return;
+          }
+
+          container.innerHTML = history.map(f => `
+            <div class="history-item">
+              <div class="history-icon">${this.getFileIcon(f.fileName)}</div>
+              <div class="history-info">
+                <div class="history-name">${f.fileName}</div>
+                <div class="history-meta">${this.formatSize(f.size)} • ${this.formatTime(f.downloadedAt)}</div>
+              </div>
+              <span class="history-badge ${f.source}">${f.source}</span>
+            </div>
+          `).join('');
+        } catch (e) {}
+      }
+
+      async checkServices() {
+        try {
+          const res = await fetch(`${API_URL}/api/llm/status`);
+          const data = await res.json();
+          const dot = document.getElementById('llmDot');
+          const status = document.getElementById('llmStatus');
+          if (data.configured) {
+            dot.className = 'status-dot success';
+            status.textContent = `AI: ${data.model?.split('/')[1] || 'Ready'}`;
+          } else {
+            dot.className = 'status-dot warning';
+            status.textContent = 'AI: Not configured';
+          }
+        } catch (e) {}
+
+        try {
+          const res = await fetch(`${API_URL}/api/discord/status`);
+          const data = await res.json();
+          const dot = document.getElementById('discordDot');
+          const status = document.getElementById('discordStatusText');
+          if (data.configured) {
+            dot.className = 'status-dot success';
+            status.textContent = 'Discord: Connected';
+          } else {
+            dot.className = 'status-dot warning';
+            status.textContent = 'Discord: Not configured';
+          }
+        } catch (e) {}
+      }
+
+      getFileIcon(name) {
+        const ext = name?.split('.').pop()?.toLowerCase();
+        const icons = { pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', ppt: '📽️', pptx: '📽️', png: '🖼️', jpg: '🖼️', zip: '📦' };
+        return icons[ext] || '📎';
+      }
+
+      formatSize(bytes) {
+        if (!bytes) return '?';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      }
+
+      formatTime(date) {
+        return new Date(date).toLocaleString();
+      }
+
+      showToast(message, type = '') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast' + (type ? ' ' + type : '');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
+    }
+
+    new Dashboard();
+  </script>
+</body>
+</html>

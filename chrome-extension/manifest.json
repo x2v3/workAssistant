@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "Teams & Slack File Assistant",
+  "version": "1.0.0",
+  "description": "Monitor Teams and Slack web pages, use AI to decide which files to download and organize them intelligently",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://teams.microsoft.com/*",
+    "https://*.teams.microsoft.com/*",
+    "https://app.slack.com/*",
+    "https://*.slack.com/*",
+    "https://files.slack.com/*",
+    "http://localhost:3847/*",
+    "http://127.0.0.1:3847/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://teams.microsoft.com/*", "https://*.teams.microsoft.com/*"],
+      "js": ["content/teams-content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://app.slack.com/*", "https://*.slack.com/*"],
+      "js": ["content/slack-content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "settings/settings.html"
+}

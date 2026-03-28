@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Assistant - Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚙️ File Assistant Settings</h1>
+      <p>Configure your Teams & Slack file assistant</p>
+    </header>
+
+    <div class="notice">
+      <strong>💡 Tip:</strong> For full configuration options, use the 
+      <a href="http://127.0.0.1:3847" target="_blank">Web Dashboard</a>
+    </div>
+
+    <section class="card">
+      <h2>🤖 AI Configuration</h2>
+      <div class="form-group">
+        <label for="apiKey">OpenRouter API Key</label>
+        <input type="password" id="apiKey" placeholder="sk-or-...">
+        <small>Get your key at <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></small>
+      </div>
+      <div class="form-group">
+        <label for="model">AI Model</label>
+        <div style="display: flex; gap: 8px;">
+          <select id="model" style="flex: 1;">
+            <option value="">Loading models...</option>
+          </select>
+          <button class="btn btn-secondary" id="refreshModelsBtn" style="padding: 10px 12px;">🔄</button>
+        </div>
+        <small>Fetched from OpenRouter. <a href="#" id="showAllModelsLink">Show all models</a></small>
+      </div>
+      <button class="btn btn-secondary" id="testLlmBtn">Test Connection</button>
+      <div class="alert" id="llmAlert"></div>
+    </section>
+
+    <section class="card">
+      <h2>💬 Discord Integration</h2>
+      <div class="form-group">
+        <label for="discordWebhook">Webhook URL</label>
+        <input type="text" id="discordWebhook" placeholder="https://discord.com/api/webhooks/...">
+        <small>For notifications and summaries</small>
+      </div>
+      <div class="form-group">
+        <label for="discordBotToken">Bot Token (optional)</label>
+        <input type="password" id="discordBotToken" placeholder="Your bot token for Q&A">
+        <small>Create a bot at <a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a></small>
+      </div>
+      <div class="form-group">
+        <label for="botPrefix">Command Prefix</label>
+        <input type="text" id="botPrefix" value="!ask" placeholder="!ask">
+        <small>Users type this to ask questions (e.g., !ask What did Bob say?)</small>
+      </div>
+      <div class="form-group">
+        <label>Options</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="notifyFiles" checked>
+            <span>Notify on file downloads</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="notifyCatchUp" checked>
+            <span>Send catch-up summaries to Discord</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoSummary">
+            <span>Automatic daily summary at 9 AM</span>
+          </label>
+        </div>
+      </div>
+      <button class="btn btn-secondary" id="testDiscordBtn">Test Webhook</button>
+      <div class="alert" id="discordAlert"></div>
+    </section>
+
+    <section class="card">
+      <h2>📂 Storage Settings</h2>
+      <div class="form-group">
+        <label for="baseDir">Download Directory</label>
+        <input type="text" id="baseDir" placeholder="D:/Downloads/WorkFiles">
+        <small>Base folder for organizing downloaded files</small>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🔄 Sync Settings</h2>
+      <div class="form-group">
+        <label for="syncInterval">Sync Interval</label>
+        <select id="syncInterval">
+          <option value="5">Every 5 minutes</option>
+          <option value="15">Every 15 minutes</option>
+          <option value="30">Every 30 minutes</option>
+          <option value="60">Every hour</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Enabled Sources</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="teamsEnabled" checked>
+            <span>Microsoft Teams</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="slackEnabled" checked>
+            <span>Slack</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🌐 Auto Tab Opening</h2>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="autoOpenTabs" checked>
+          <span>Automatically open Teams/Slack tabs on startup</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="teamsUrl">Teams URL</label>
+        <input type="text" id="teamsUrl" placeholder="https://teams.microsoft.com">
+        <small>Main Teams page or specific chat/channel URL</small>
+      </div>
+      <div class="form-group">
+        <label for="slackUrl">Slack URL</label>
+        <input type="text" id="slackUrl" placeholder="https://app.slack.com">
+        <small>Main Slack page or specific workspace URL</small>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🔍 File Filters</h2>
+      <div class="form-group">
+        <label for="fileTypes">Allowed File Types</label>
+        <input type="text" id="fileTypes" placeholder=".pdf, .docx, .xlsx, .pptx">
+        <small>Comma-separated list of extensions</small>
+      </div>
+      <div class="form-group">
+        <label for="maxSize">Maximum File Size (MB)</label>
+        <input type="number" id="maxSize" value="100" min="1" max="1000">
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="saveBtn">💾 Save Settings</button>
+      <button class="btn btn-secondary" id="openDashboardBtn">Open Dashboard</button>
+    </div>
+
+    <div class="alert" id="saveAlert" style="margin-top: 16px;"></div>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

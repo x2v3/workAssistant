@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Data files (contain sensitive messages)
+local-server/data/
+*.db
+*.sqlite
+
+# Config with secrets
+local-server/config.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+*.zip
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Chrome extension unpacked (keep source, ignore packed)
+*.crx
+*.pem
+
+# Temporary files
+tmp/
+temp/
+*.tmp
